@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Vault Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🗂️ Multi-Vault Dashboard</h1>
+      <div class="status" id="status">
+        <span class="status-dot"></span>
+        <span id="status-text">Connecting...</span>
+      </div>
+    </header>
+
+
+
+    <!-- AI Chat Section -->
+    <div class="ai-chat-section" id="ai-chat-section">
+      <div class="ai-chat-header">
+        <h2>🔍 Search & Ask</h2>
+        <div class="ollama-status" id="ollama-status">
+          <span class="status-indicator"></span>
+          <span id="ollama-status-text">Checking Ollama...</span>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-message ai-message">
+          <div class="message-icon">🤖</div>
+          <div class="message-content">
+            <p>Search your vaults or ask AI questions. Try:</p>
+            <ul>
+              <li>🔍 "artworks" - Find documents</li>
+              <li>🤖 "What vaults have the most files?" - Ask AI</li>
+              <li>🤖 "Summarize my Study vault" - Get analysis</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-container">
+        <select id="model-selector" class="model-selector">
+          <option value="search">🔍 RAG Search</option>
+          <option value="claude">🤖 Claude Pro</option>
+          <option value="ollama">⚡ Ollama (Fast)</option>
+        </select>
+        <select id="vault-selector" class="vault-selector">
+          <option value="all">All Vaults</option>
+          <option value="Study">📚 Study</option>
+          <option value="Creative-Incubator">🎨 Creative-Incubator</option>
+          <option value="Business-Incubator">💼 Business-Incubator</option>
+          <option value="Red-White">📖 Red-White</option>
+          <option value="ThistleRidgeHall">🎯 ThistleRidgeHall</option>
+          <option value="SickRabbit">🐰 SickRabbit</option>
+          <option value="Library">📋 Library</option>
+          <option value="Life-Systems">⚙️ Life-Systems</option>
+        </select>
+        <input
+          type="text"
+          id="chat-input"
+          class="chat-input"
+          placeholder="Search or ask a question..."
+          disabled
+        >
+        <button id="chat-send" class="chat-send" disabled>
+          <span id="send-icon">Send</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Vault Grid -->
+    <div id="vault-grid" class="vault-grid">
+      <div class="loading">Loading vaults...</div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Multi-Vault System • Last updated: <span id="last-updated">--</span></p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

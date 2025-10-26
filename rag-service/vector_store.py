@@ -1,0 +1,190 @@
+"""
+VaultVectorStore - ChromaDB wrapper for Multi-Vault System
+
+This module provides a clean interface to ChromaDB for storing and retrieving
+embeddings of vault documents. Each vault gets its own collection.
+"""
+
+import chromadb
+from chromadb.config import Settings
+from typing import List, Dict, Any, Optional
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+class VaultVectorStore:
+    """Manages ChromaDB collections for vault document embeddings"""
+
+    def __init__(self, persist_directory: str = "./chroma_db"):
+        """
+        Initialize ChromaDB client with persistent storage
+
+        Args:
+            persist_directory: Path to store ChromaDB data (default: ./chroma_db)
+        """
+        self.persist_directory = persist_directory
+
+        # Initialize ChromaDB client with persistence using PersistentClient
+        # CRITICAL FIX: Using PersistentClient instead of Client for actual persistence
+        self.client = chromadb.PersistentClient(
+            path=persist_directory,
+            settings=Settings(
+                anonymized_telemetry=False  # Disable telemetry for privacy
+            )
+        )
+
+        logger.info(f"ChromaDB initialized with PERSISTENT storage at: {persist_directory}")
+
+    def get_or_create_collection(self, vault_name: str):
+        """
+        Get or create a collection for a specific vault
+
+        Args:
+            vault_name: Name of the vault (e.g., "ThistleRidgeHall")
+
+        Returns:
+            ChromaDB collection object
+        """
+        # Sanitize vault name for use as collection name
+        # ChromaDB collection names must be alphanumeric with underscores/hyphens
+        collection_name = vault_name.replace(".", "_").replace(" ", "_")
+
+        collection = self.client.get_or_create_collection(
+            name=collection_name,
+            metadata={
+                "description": f"Documents from {vault_name} vault",
+                "vault_name": vault_name
+            }
+        )
+
+        logger.info(f"Collection '{collection_name}' ready (count: {collection.count()})")
+        return collection
+
+    def add_documents(
+        self,
+        collection_name: str,
+        documents: List[str],
+        embeddings: List[List[float]],
+        metadatas: List[Dict[str, Any]],
+        ids: List[str]
+    ):
+        """
+        Add documents to a collection with their embeddings and metadata
+
+        Args:
+            collection_name: Name of the vault/collection
+            documents: List of document text content
+            embeddings: List of embedding vectors (768-dim for nomic-embed-text)
+            metadatas: List of metadata dicts for each document
+            ids: List of unique IDs for each document
+        """
+        collection = self.get_or_create_collection(collection_name)
+
+        collection.add(
+            documents=documents,
+            embeddings=embeddings,
+            metadatas=metadatas,
+            ids=ids
+        )
+
+        logger.info(f"Added {len(documents)} documents to '{collection_name}'")
+
+    def query(
+        self,
+        collection_name: str,
+        query_embeddings: List[List[float]],
+        n_results: int = 10,
+        where: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Query a collection for similar documents
+
+        Args:
+            collection_name: Name of the vault/collection
+            query_embeddings: List of query embedding vectors
+            n_results: Number of results to return (default: 10)
+            where: Optional metadata filter (e.g., {"folder": "Characters"})
+
+        Returns:
+            Query results with documents, distances, and metadata
+        """
+        collection = self.get_or_create_collection(collection_name)
+
+        results = collection.query(
+            query_embeddings=query_embeddings,
+            n_results=n_results,
+            where=where
+        )
+
+        return results
+
+    def update_document(
+        self,
+        collection_name: str,
+        document_id: str,
+        document: Optional[str] = None,
+        embedding: Optional[List[float]] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ):
+        """
+        Update an existing document in the collection
+
+        Args:
+            collection_name: Name of the vault/collection
+            document_id: Unique ID of the document to update
+            document: New document text (optional)
+            embedding: New embedding vector (optional)
+            metadata: New metadata (optional)
+        """
+        collection = self.get_or_create_collection(collection_name)
+
+        collection.update(
+            ids=[document_id],
+            documents=[document] if document else None,
+            embeddings=[embedding] if embedding else None,
+            metadatas=[metadata] if metadata else None
+        )
+
+        logger.info(f"Updated document '{document_id}' in '{collection_name}'")
+
+    def delete_document(self, collection_name: str, document_id: str):
+        """
+        Delete a document from the collection
+
+        Args:
+            collection_name: Name of the vault/collection
+            document_id: Unique ID of the document to delete
+        """
+        collection = self.get_or_create_collection(collection_name)
+        collection.delete(ids=[document_id])
+        logger.info(f"Deleted document '{document_id}' from '{collection_name}'")
+
+    def get_collection_stats(self, collection_name: str) -> Dict[str, Any]:
+        """
+        Get statistics about a collection
+
+        Args:
+            collection_name: Name of the vault/collection
+
+        Returns:
+            Dictionary with collection stats
+        """
+        collection = self.get_or_create_collection(collection_name)
+
+        return {
+            "name": collection_name,
+            "count": collection.count(),
+            "metadata": collection.metadata
+        }
+
+    def list_collections(self) -> List[str]:
+        """
+        List all collection names
+
+        Returns:
+            List of collection names
+        """
+        collections = self.client.list_collections()
+        return [col.name for col in collections]

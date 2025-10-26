@@ -1,0 +1,22 @@
+{
+  "name": "multi-vault-dashboard",
+  "version": "0.4.0",
+  "description": "Web dashboard with AI-powered search and chat for Multi-Vault System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "start-python": "cd ollama-service && python app.py"
+  },
+  "keywords": [
+    "obsidian",
+    "dashboard",
+    "knowledge-management"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.7.0"
+  }
+}
