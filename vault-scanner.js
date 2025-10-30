@@ -447,6 +447,72 @@ class VaultScanner {
   }
 
   /**
+   * Get recent activity across all vaults
+   * Returns recently modified files sorted by modification time
+   */
+  getRecentActivity(limit = 10) {
+    const allFiles = [];
+
+    // Collect recent files from all vaults
+    for (const vault of this.vaults) {
+      const vaultPath = path.join(this.vaultRoot, vault.path);
+      if (!fs.existsSync(vaultPath)) continue;
+
+      // Get recent files from this vault
+      const recentFiles = this.getRecentFiles(vaultPath, limit * 2); // Get more, then filter
+
+      recentFiles.forEach(file => {
+        allFiles.push({
+          name: file.name,
+          vault: vault.name,
+          vaultIcon: vault.icon,
+          vaultColor: vault.color,
+          path: path.relative(vaultPath, file.path),
+          modified: file.modified,
+          modifiedISO: file.modified.toISOString()
+        });
+      });
+    }
+
+    // Sort all files by modification time (newest first)
+    allFiles.sort((a, b) => b.modified - a.modified);
+
+    // Return top N files with formatted time
+    return allFiles.slice(0, limit).map(file => ({
+      name: file.name,
+      vault: file.vault,
+      vaultIcon: file.vaultIcon,
+      vaultColor: file.vaultColor,
+      path: file.path,
+      modified: file.modifiedISO,
+      timeAgo: this.formatTimeAgo(file.modified)
+    }));
+  }
+
+  /**
+   * Format a date as relative time (e.g., "2 hours ago", "3 days ago")
+   */
+  formatTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+    const diffWeek = Math.floor(diffDay / 7);
+    const diffMonth = Math.floor(diffDay / 30);
+    const diffYear = Math.floor(diffDay / 365);
+
+    if (diffSec < 60) return 'Just now';
+    if (diffMin < 60) return `${diffMin} ${diffMin === 1 ? 'minute' : 'minutes'} ago`;
+    if (diffHour < 24) return `${diffHour} ${diffHour === 1 ? 'hour' : 'hours'} ago`;
+    if (diffDay < 7) return `${diffDay} ${diffDay === 1 ? 'day' : 'days'} ago`;
+    if (diffWeek < 4) return `${diffWeek} ${diffWeek === 1 ? 'week' : 'weeks'} ago`;
+    if (diffMonth < 12) return `${diffMonth} ${diffMonth === 1 ? 'month' : 'months'} ago`;
+    return `${diffYear} ${diffYear === 1 ? 'year' : 'years'} ago`;
+  }
+
+  /**
    * Get active projects across all vaults
    * Projects are identified by:
    * 1. PROJECT-STATUS.md or PROJECT-OVERVIEW.md files

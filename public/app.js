@@ -22,6 +22,7 @@ const ollamaStatus = document.getElementById('ollama-status');
 // Initialize
 loadVaults();
 loadActiveProjects();
+loadRecentActivity();
 checkAIStatus();
 
 // Debug mode toggle button
@@ -174,6 +175,88 @@ function createProjectCard(project) {
 function showProjectsError(message) {
   const projectsContainer = document.getElementById('active-projects');
   projectsContainer.innerHTML = `<div class="error-message">${message}</div>`;
+}
+
+/**
+ * Load recent activity from API
+ */
+async function loadRecentActivity() {
+  try {
+    const response = await fetch(`${API_BASE}/api/recent-activity?limit=10`);
+    const data = await response.json();
+
+    if (data.success) {
+      renderRecentActivity(data.activity);
+    } else {
+      showActivityError('Failed to load activity');
+    }
+  } catch (error) {
+    showActivityError('Cannot connect to server');
+  }
+}
+
+/**
+ * Render recent activity list
+ */
+function renderRecentActivity(activities) {
+  const activityContainer = document.getElementById('recent-activity');
+
+  if (!activities || activities.length === 0) {
+    activityContainer.innerHTML = '<div class="no-activity">No recent activity</div>';
+    return;
+  }
+
+  activityContainer.innerHTML = '';
+
+  activities.forEach(activity => {
+    const item = createActivityItem(activity);
+    activityContainer.appendChild(item);
+  });
+}
+
+/**
+ * Create an activity list item
+ */
+function createActivityItem(activity) {
+  const item = document.createElement('div');
+  item.className = 'activity-item';
+
+  // Truncate filename if too long
+  const maxLength = 30;
+  const displayName = activity.name.length > maxLength
+    ? activity.name.substring(0, maxLength) + '...'
+    : activity.name;
+
+  item.innerHTML = `
+    <div class="activity-file">
+      <span class="activity-vault-icon" style="color: ${activity.vaultColor};">${activity.vaultIcon}</span>
+      <div class="activity-details">
+        <div class="activity-filename" title="${activity.name}">${displayName}</div>
+        <div class="activity-meta">
+          <span class="activity-vault-name">${activity.vault}</span>
+          <span class="activity-separator">•</span>
+          <span class="activity-time">${activity.timeAgo}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Add hover effect
+  item.style.cursor = 'pointer';
+  item.addEventListener('click', () => {
+    console.log('Activity clicked:', activity.name, 'in', activity.vault);
+    // TODO: Open file preview or navigate to file
+  });
+
+  return item;
+}
+
+/**
+ * Show error in activity section
+ */
+function showActivityError(message) {
+  const activityContainer = document.getElementById('recent-activity');
+  activityContainer.innerHTML = `<div class="error-message-small">${message}</div>`;
 }
 
 /**

@@ -63,6 +63,25 @@ app.get('/api/projects', (req, res) => {
   }
 });
 
+// API endpoint: Get recent activity across all vaults
+app.get('/api/recent-activity', (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10;
+    const activity = scanner.getRecentActivity(limit);
+    res.json({
+      success: true,
+      activity: activity,
+      count: activity.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // API endpoint: Search across all vaults (using RAG hybrid search)
 app.get('/api/search', async (req, res) => {
   const query = req.query.q;

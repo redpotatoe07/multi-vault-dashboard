@@ -679,6 +679,84 @@ body {
   border-radius: 8px;
 }
 
+/* Recent Activity Items */
+.activity-item {
+  padding: 10px;
+  background: var(--bg-card);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.activity-item:hover {
+  background: rgba(74, 144, 226, 0.1);
+  transform: translateX(4px);
+}
+
+.activity-file {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.activity-vault-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.activity-details {
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+}
+
+.activity-filename {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.activity-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.activity-vault-name {
+  font-weight: 500;
+}
+
+.activity-separator {
+  color: var(--border);
+}
+
+.activity-time {
+  font-style: italic;
+}
+
+.no-activity {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.error-message-small {
+  text-align: center;
+  padding: 15px;
+  color: #E74C3C;
+  background: rgba(231, 76, 60, 0.1);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
 /* Vault Grid */
 .vault-grid {
   display: grid;
@@ -912,6 +990,26 @@ body {
   .recent-activity-sidebar {
     max-height: 400px;
     padding: 15px;
+  }
+
+  .activity-item {
+    padding: 8px;
+  }
+
+  .activity-item:hover {
+    transform: none;
+  }
+
+  .activity-vault-icon {
+    font-size: 1.1rem;
+  }
+
+  .activity-filename {
+    font-size: 0.85rem;
+  }
+
+  .activity-meta {
+    font-size: 0.7rem;
   }
 
   .vault-grid {
