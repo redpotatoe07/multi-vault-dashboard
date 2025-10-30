@@ -482,12 +482,78 @@ body {
   border-top: 1px solid var(--border);
 }
 
+/* Section Headings */
+.section-heading {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Active Projects Section */
+.active-projects-section {
+  margin-bottom: 30px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px var(--shadow);
+}
+
+.active-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 16px;
+}
+
+/* Main Content Grid: Vault Grid + Recent Activity Sidebar */
+.main-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+/* Vaults Section */
+.vaults-section {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+/* Recent Activity Sidebar */
+.recent-activity-sidebar {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px var(--shadow);
+  height: fit-content;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Loading States */
+.loading-small {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
 /* Vault Grid */
 .vault-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
-  gap: 24px;
-  margin-bottom: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 20px;
   width: 100%;
 }
 
@@ -673,6 +739,32 @@ body {
 
   .search-vault-header {
     font-size: 1rem;
+  }
+
+  /* Active Projects Section Mobile */
+  .active-projects-section {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .section-heading {
+    font-size: 1.2rem;
+  }
+
+  .active-projects-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* Main Content Grid Mobile */
+  .main-content-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .recent-activity-sidebar {
+    max-height: 400px;
+    padding: 15px;
   }
 
   .vault-grid {
