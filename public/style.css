@@ -549,6 +549,136 @@ body {
   font-size: 0.9rem;
 }
 
+/* Project Cards */
+.project-card {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  border-left: 4px solid var(--accent);
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.project-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+}
+
+.project-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.project-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.project-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.project-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.project-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.project-progress-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 40px;
+  text-align: right;
+}
+
+.project-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.project-vault {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.project-deadline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.project-deadline.urgent {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.project-deadline.overdue {
+  color: #E74C3C;
+  font-weight: 600;
+}
+
+.no-projects {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.error-message {
+  text-align: center;
+  padding: 20px;
+  color: #E74C3C;
+  background: rgba(231, 76, 60, 0.1);
+  border-radius: 8px;
+}
+
 /* Vault Grid */
 .vault-grid {
   display: grid;
@@ -754,6 +884,23 @@ body {
   .active-projects-grid {
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+
+  .project-card {
+    padding: 14px;
+  }
+
+  .project-card:hover {
+    transform: none;
+  }
+
+  .project-name {
+    font-size: 0.95rem;
+  }
+
+  .project-status {
+    font-size: 0.7rem;
+    padding: 3px 10px;
   }
 
   /* Main Content Grid Mobile */

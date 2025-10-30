@@ -45,6 +45,24 @@ app.get('/api/vaults', (req, res) => {
   }
 });
 
+// API endpoint: Get active projects
+app.get('/api/projects', (req, res) => {
+  try {
+    const projects = scanner.getActiveProjects();
+    res.json({
+      success: true,
+      projects: projects,
+      count: projects.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // API endpoint: Search across all vaults (using RAG hybrid search)
 app.get('/api/search', async (req, res) => {
   const query = req.query.q;

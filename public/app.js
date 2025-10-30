@@ -21,6 +21,7 @@ const ollamaStatus = document.getElementById('ollama-status');
 
 // Initialize
 loadVaults();
+loadActiveProjects();
 checkAIStatus();
 
 // Debug mode toggle button
@@ -60,6 +61,119 @@ async function loadVaults() {
   } catch (error) {
     showError('Cannot connect to server: ' + error.message);
   }
+}
+
+/**
+ * Load active projects from API
+ */
+async function loadActiveProjects() {
+  try {
+    const response = await fetch(`${API_BASE}/api/projects`);
+    const data = await response.json();
+
+    if (data.success) {
+      renderProjects(data.projects);
+    } else {
+      showProjectsError('Failed to load projects');
+    }
+  } catch (error) {
+    showProjectsError('Cannot connect to server');
+  }
+}
+
+/**
+ * Render project cards
+ */
+function renderProjects(projects) {
+  const projectsContainer = document.getElementById('active-projects');
+
+  if (!projects || projects.length === 0) {
+    projectsContainer.innerHTML = '<div class="no-projects">No active projects found</div>';
+    return;
+  }
+
+  projectsContainer.innerHTML = '';
+
+  projects.forEach(project => {
+    const card = createProjectCard(project);
+    projectsContainer.appendChild(card);
+  });
+}
+
+/**
+ * Create a project card element
+ */
+function createProjectCard(project) {
+  const card = document.createElement('div');
+  card.className = 'project-card';
+
+  // Status badge color
+  const statusColors = {
+    'active': '#2ECC71',
+    'in-progress': '#3498DB',
+    'pending': '#F39C12',
+    'completed': '#95A5A6',
+    'on-hold': '#E74C3C'
+  };
+  const statusColor = statusColors[project.status.toLowerCase()] || '#3498DB';
+
+  // Format deadline
+  let deadlineText = '';
+  if (project.deadline) {
+    try {
+      const deadline = new Date(project.deadline);
+      const now = new Date();
+      const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+      if (daysUntil > 0) {
+        deadlineText = `<span class="project-deadline">📅 ${daysUntil} days</span>`;
+      } else if (daysUntil === 0) {
+        deadlineText = `<span class="project-deadline urgent">📅 Due today!</span>`;
+      } else {
+        deadlineText = `<span class="project-deadline overdue">📅 Overdue</span>`;
+      }
+    } catch (e) {
+      deadlineText = `<span class="project-deadline">📅 ${project.deadline}</span>`;
+    }
+  }
+
+  card.innerHTML = `
+    <div class="project-header">
+      <div class="project-title">
+        <span class="project-icon">${project.icon}</span>
+        <span class="project-name">${project.name}</span>
+      </div>
+      <span class="project-status" style="background: ${statusColor}88; color: ${statusColor};">
+        ${project.status}
+      </span>
+    </div>
+    <div class="project-progress-section">
+      <div class="project-progress-bar">
+        <div class="project-progress-fill" style="width: ${project.progress}%; background: ${statusColor};"></div>
+      </div>
+      <span class="project-progress-text">${project.progress}%</span>
+    </div>
+    <div class="project-footer">
+      <span class="project-vault">🗂️ ${project.vault}</span>
+      ${deadlineText}
+    </div>
+  `;
+
+  // Make clickable (future: navigate to project focus page)
+  card.style.cursor = 'pointer';
+  card.addEventListener('click', () => {
+    console.log('Project clicked:', project.name);
+    // TODO: Navigate to project focus page in Stage 5
+  });
+
+  return card;
+}
+
+/**
+ * Show error in projects section
+ */
+function showProjectsError(message) {
+  const projectsContainer = document.getElementById('active-projects');
+  projectsContainer.innerHTML = `<div class="error-message">${message}</div>`;
 }
 
 /**
