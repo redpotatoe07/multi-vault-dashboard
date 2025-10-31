@@ -159,11 +159,11 @@ function createProjectCard(project) {
     </div>
   `;
 
-  // Make clickable (future: navigate to project focus page)
+  // Make clickable - navigate to project focus page
   card.style.cursor = 'pointer';
   card.addEventListener('click', () => {
-    console.log('Project clicked:', project.name);
-    // TODO: Navigate to project focus page in Stage 5
+    // Navigate to project page with project name
+    window.location.href = `project.html?name=${encodeURIComponent(project.name)}`;
   });
 
   return card;
@@ -313,10 +313,10 @@ function createVaultCard(vault) {
     </div>
   `;
 
-  // Add click handler (future: navigate to project focus page filtered by this vault)
+  // Add click handler - navigate to project focus page filtered by this vault
   card.addEventListener('click', () => {
-    console.log('Vault clicked:', vault.name);
-    // TODO: In Stage 7, navigate to project focus page with vault filter
+    // Navigate to project page with vault parameter
+    window.location.href = `project.html?vault=${encodeURIComponent(vault.name)}`;
   });
 
   return card;
