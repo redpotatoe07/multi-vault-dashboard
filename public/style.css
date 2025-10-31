@@ -777,18 +777,20 @@ body {
 .vault-card {
   background: var(--bg-secondary);
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   box-shadow: 0 4px 6px var(--shadow);
   transition: all 0.3s ease;
   border-top: 4px solid;
   width: 100%;
   max-width: 100%;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .vault-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 12px var(--shadow);
+  background: rgba(74, 144, 226, 0.05);
 }
 
 .vault-header {
@@ -799,89 +801,58 @@ body {
 }
 
 .vault-icon {
-  font-size: 2rem;
+  font-size: 2.5rem;
+  flex-shrink: 0;
 }
 
 .vault-title {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
+  line-height: 1.2;
 }
 
-.vault-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.vault-info {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  margin-bottom: 16px;
 }
 
-.stat-box {
-  background: var(--bg-card);
-  padding: 12px;
-  border-radius: 8px;
-  text-align: center;
+.vault-file-count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
 }
 
-.stat-value {
-  font-size: 1.8rem;
+.file-count-number {
+  font-size: 2rem;
   font-weight: 700;
-  display: block;
+  color: var(--accent);
+  line-height: 1;
 }
 
-.stat-label {
+.file-count-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.vault-last-updated {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.85rem;
   color: var(--text-secondary);
-  margin-top: 4px;
-}
-
-.vault-section {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.section-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.file-list, .folder-list {
-  list-style: none;
-}
-
-.file-item, .folder-item {
   padding: 8px 12px;
-  margin: 4px 0;
   background: var(--bg-card);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  border-radius: 8px;
 }
 
-.file-name {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.last-updated-icon {
+  font-size: 1rem;
 }
 
-.file-time {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-left: 8px;
-}
-
-.folder-count {
-  background: var(--accent);
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
+.last-updated-text {
+  font-style: italic;
 }
 
 .vault-not-found {
@@ -1018,7 +989,7 @@ body {
   }
 
   .vault-card {
-    padding: 18px;
+    padding: 16px;
   }
 
   .vault-card:hover {
@@ -1026,39 +997,25 @@ body {
   }
 
   .vault-icon {
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
 
   .vault-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     word-break: break-word;
   }
 
-  .stat-value {
-    font-size: 1.6rem;
+  .file-count-number {
+    font-size: 1.8rem;
   }
 
-  .stat-label {
+  .file-count-label {
+    font-size: 0.85rem;
+  }
+
+  .vault-last-updated {
     font-size: 0.8rem;
-  }
-
-  .section-title {
-    font-size: 0.85rem;
-  }
-
-  .file-item, .folder-item {
-    padding: 10px;
-    font-size: 0.85rem;
-  }
-
-  .file-time {
-    font-size: 0.75rem;
-    white-space: nowrap;
-  }
-
-  .folder-count {
-    font-size: 0.75rem;
-    padding: 2px 6px;
+    padding: 6px 10px;
   }
 
   .footer {

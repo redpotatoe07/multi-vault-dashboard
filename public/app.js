@@ -290,51 +290,34 @@ function createVaultCard(vault) {
     return card;
   }
 
+  // Get last updated time from most recent file
+  const lastUpdated = vault.recentFiles.length > 0
+    ? formatTimeAgo(vault.recentFiles[0].modified)
+    : 'No recent activity';
+
   card.innerHTML = `
     <div class="vault-header">
       <span class="vault-icon">${vault.icon}</span>
       <h2 class="vault-title">${vault.name}</h2>
     </div>
 
-    <div class="vault-stats">
-      <div class="stat-box">
-        <span class="stat-value">${vault.fileCount}</span>
-        <span class="stat-label">Files</span>
+    <div class="vault-info">
+      <div class="vault-file-count">
+        <span class="file-count-number">${vault.fileCount}</span>
+        <span class="file-count-label">${vault.fileCount === 1 ? 'file' : 'files'}</span>
       </div>
-      <div class="stat-box">
-        <span class="stat-value">${vault.topFolders.length}</span>
-        <span class="stat-label">Folders</span>
+      <div class="vault-last-updated">
+        <span class="last-updated-icon">🕐</span>
+        <span class="last-updated-text">${lastUpdated}</span>
       </div>
     </div>
-
-    ${vault.topFolders.length > 0 ? `
-      <div class="vault-section">
-        <h3 class="section-title">Top Folders</h3>
-        <ul class="folder-list">
-          ${vault.topFolders.map(folder => `
-            <li class="folder-item">
-              <span class="file-name">📁 ${folder.name}</span>
-              <span class="folder-count">${folder.fileCount}</span>
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-    ` : ''}
-
-    ${vault.recentFiles.length > 0 ? `
-      <div class="vault-section">
-        <h3 class="section-title">Recent Files</h3>
-        <ul class="file-list">
-          ${vault.recentFiles.slice(0, 5).map(file => `
-            <li class="file-item">
-              <span class="file-name" title="${file.relativePath}">📄 ${file.name}</span>
-              <span class="file-time">${formatTimeAgo(file.modified)}</span>
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-    ` : ''}
   `;
+
+  // Add click handler (future: navigate to project focus page filtered by this vault)
+  card.addEventListener('click', () => {
+    console.log('Vault clicked:', vault.name);
+    // TODO: In Stage 7, navigate to project focus page with vault filter
+  });
 
   return card;
 }
