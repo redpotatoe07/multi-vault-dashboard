@@ -185,26 +185,214 @@
   margin-top: 16px;
 }
 
-/* Placeholder Styles */
-.timeline-placeholder,
-.files-placeholder,
-.tasks-placeholder {
-  text-align: center;
-  padding: 40px 20px;
+/* Timeline Phase Styles */
+.timeline-phase {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.timeline-phase:hover {
+  background: rgba(74, 144, 226, 0.08);
+}
+
+.phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.phase-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.phase-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.phase-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.phase-progress {
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--text-secondary);
 }
 
-.timeline-placeholder p,
-.files-placeholder p,
-.tasks-placeholder p {
-  margin: 0 0 8px 0;
-  font-size: 1rem;
+.phase-progress-bar {
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-.placeholder-note {
+.phase-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* File Item Card Styles */
+.file-item-card {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.file-item-card:hover {
+  background: rgba(74, 144, 226, 0.08);
+  transform: translateX(4px);
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.file-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.file-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.file-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-path {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.file-time,
+.file-size {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Task Item Styles */
+.task-item {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.task-item:hover {
+  background: rgba(74, 144, 226, 0.08);
+}
+
+.task-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.task-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--text-secondary);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.task-name {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-progress {
   font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Empty/Complete States */
+.timeline-empty,
+.files-empty,
+.tasks-empty,
+.tasks-complete {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--text-secondary);
+}
+
+.timeline-empty p,
+.files-empty p,
+.tasks-empty p,
+.tasks-complete p {
+  margin: 0 0 6px 0;
+  font-size: 0.95rem;
+}
+
+.empty-note {
+  font-size: 0.8rem;
   font-style: italic;
   opacity: 0.7;
+}
+
+.tasks-complete p {
+  font-size: 1.1rem;
+  color: var(--success);
 }
 
 /* Stats Cards */
@@ -344,6 +532,75 @@
 
   .stat-card .stat-value {
     font-size: 1.6rem;
+  }
+
+  /* Timeline Mobile */
+  .timeline-phase {
+    padding: 12px;
+  }
+
+  .phase-name {
+    font-size: 0.85rem;
+  }
+
+  .phase-progress {
+    font-size: 0.8rem;
+  }
+
+  .phase-progress-bar {
+    height: 5px;
+  }
+
+  /* Files Mobile */
+  .file-item-card {
+    padding: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .file-info {
+    width: 100%;
+  }
+
+  .file-icon {
+    font-size: 1.1rem;
+  }
+
+  .file-name {
+    font-size: 0.85rem;
+  }
+
+  .file-path {
+    font-size: 0.7rem;
+  }
+
+  .file-stats {
+    flex-direction: row;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .file-time,
+  .file-size {
+    font-size: 0.7rem;
+  }
+
+  /* Tasks Mobile */
+  .task-item {
+    padding: 10px;
+  }
+
+  .task-checkbox {
+    width: 16px;
+    height: 16px;
+  }
+
+  .task-name {
+    font-size: 0.85rem;
+  }
+
+  .task-progress {
+    font-size: 0.75rem;
   }
 
   .error-message-large {

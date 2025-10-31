@@ -513,6 +513,136 @@ class VaultScanner {
   }
 
   /**
+   * Get detailed project information including timeline, files, and tasks
+   */
+  getProjectDetails(identifier, type = 'name') {
+    const projects = this.getActiveProjects();
+
+    // Find the project
+    let project;
+    if (type === 'name') {
+      project = projects.find(p => p.name === identifier);
+    } else if (type === 'vault') {
+      project = projects.find(p => p.vault === identifier);
+    }
+
+    if (!project) return null;
+
+    // Get additional details
+    const vaultConfig = this.vaults.find(v => v.name === project.vault);
+    if (!vaultConfig) return project;
+
+    const vaultPath = path.join(this.vaultRoot, vaultConfig.path);
+
+    // Parse timeline from PROJECT-STATUS.md if it exists
+    const timeline = this.parseProjectTimeline(project.filePath);
+
+    // Get related files from the vault
+    const relatedFiles = this.getProjectFiles(vaultPath, project.name, 20);
+
+    // Calculate stats
+    const stats = {
+      totalFiles: relatedFiles.length,
+      completedTasks: timeline ? timeline.filter(p => p.progress === 100).length : 0,
+      totalPhases: timeline ? timeline.length : 0,
+      lastActivity: relatedFiles.length > 0 ? relatedFiles[0].modified : new Date().toISOString()
+    };
+
+    return {
+      ...project,
+      timeline: timeline || [],
+      relatedFiles: relatedFiles,
+      stats: stats
+    };
+  }
+
+  /**
+   * Parse timeline/phases from PROJECT-STATUS.md
+   */
+  parseProjectTimeline(filePath) {
+    if (!filePath) return null;
+
+    try {
+      const fullPath = path.join(this.vaultRoot, filePath);
+      const content = fs.readFileSync(fullPath, 'utf8');
+
+      const phases = [];
+
+      // Look for phase markers like "Phase 1", "## Phase 1", etc.
+      const phaseRegex = /(?:^|\n)#{1,3}\s*(?:Phase|Stage|Step)\s+(\d+)[:\s]*([^\n]+)/gi;
+      let match;
+
+      while ((match = phaseRegex.exec(content)) !== null) {
+        const phaseNumber = parseInt(match[1]);
+        const phaseName = match[2].trim();
+
+        // Try to extract progress percentage near this phase
+        const afterPhase = content.substring(match.index, match.index + 500);
+        const progressMatch = afterPhase.match(/(\d+)%/);
+        const progress = progressMatch ? parseInt(progressMatch[1]) : 0;
+
+        // Try to determine status
+        let status = 'pending';
+        if (progress === 100 || afterPhase.match(/complete|done|finished/i)) {
+          status = 'completed';
+        } else if (progress > 0 || afterPhase.match(/in progress|ongoing|current/i)) {
+          status = 'in-progress';
+        }
+
+        phases.push({
+          number: phaseNumber,
+          name: phaseName,
+          progress: Math.min(progress, 100),
+          status: status
+        });
+      }
+
+      // Sort by phase number
+      return phases.sort((a, b) => a.number - b.number);
+    } catch (error) {
+      console.error(`Error parsing timeline from ${filePath}:`, error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Get files related to a project
+   */
+  getProjectFiles(vaultPath, projectName, limit = 20) {
+    const files = [];
+
+    try {
+      const items = fs.readdirSync(vaultPath, { withFileTypes: true });
+
+      for (const item of items) {
+        if (files.length >= limit) break;
+
+        const fullPath = path.join(vaultPath, item.name);
+
+        if (item.isDirectory()) {
+          if (!item.name.startsWith('.') && item.name !== 'node_modules') {
+            const subFiles = this.getProjectFiles(fullPath, projectName, limit - files.length);
+            files.push(...subFiles);
+          }
+        } else if (item.isFile() && item.name.endsWith('.md')) {
+          const stats = fs.statSync(fullPath);
+          files.push({
+            name: item.name,
+            path: path.relative(vaultPath, fullPath),
+            modified: stats.mtime.toISOString(),
+            size: stats.size
+          });
+        }
+      }
+    } catch (error) {
+      console.error(`Error getting project files from ${vaultPath}:`, error.message);
+    }
+
+    // Sort by modification date (newest first)
+    return files.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+  }
+
+  /**
    * Get active projects across all vaults
    * Projects are identified by:
    * 1. PROJECT-STATUS.md or PROJECT-OVERVIEW.md files

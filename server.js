@@ -82,6 +82,34 @@ app.get('/api/recent-activity', (req, res) => {
   }
 });
 
+// API endpoint: Get detailed project information
+app.get('/api/project/:identifier', (req, res) => {
+  try {
+    const identifier = req.params.identifier;
+    const type = req.query.type || 'name'; // 'name' or 'vault'
+
+    const projectDetails = scanner.getProjectDetails(identifier, type);
+
+    if (projectDetails) {
+      res.json({
+        success: true,
+        project: projectDetails,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        error: `Project not found: ${identifier}`
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // API endpoint: Search across all vaults (using RAG hybrid search)
 app.get('/api/search', async (req, res) => {
   const query = req.query.q;
