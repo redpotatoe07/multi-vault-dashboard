@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Focus - Multi-Vault Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="project.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🗂️ Multi-Vault Dashboard</h1>
+      <div class="status" id="status">
+        <span class="status-dot"></span>
+        <span id="status-text">Connecting...</span>
+      </div>
+    </header>
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb">
+      <a href="index.html" class="breadcrumb-link">← Back to Overview</a>
+    </nav>
+
+    <!-- Project Header -->
+    <section class="project-header-section" id="project-header-section">
+      <div class="loading">Loading project...</div>
+    </section>
+
+    <!-- Project Content Grid -->
+    <div class="project-content-grid">
+      <!-- Left Column: Timeline + Files -->
+      <div class="project-main-column">
+        <!-- Timeline Section -->
+        <section class="project-timeline-section">
+          <h2 class="section-heading">📅 Timeline</h2>
+          <div id="project-timeline" class="timeline-container">
+            <div class="loading-small">Loading timeline...</div>
+          </div>
+        </section>
+
+        <!-- Related Files Section -->
+        <section class="project-files-section">
+          <h2 class="section-heading">📄 Related Files</h2>
+          <div id="project-files" class="files-container">
+            <div class="loading-small">Loading files...</div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Stats + Tasks -->
+      <aside class="project-sidebar">
+        <!-- Project Stats -->
+        <section class="project-stats-section">
+          <h2 class="section-heading">📊 Stats</h2>
+          <div id="project-stats" class="stats-container">
+            <div class="loading-small">Loading stats...</div>
+          </div>
+        </section>
+
+        <!-- Active Tasks -->
+        <section class="project-tasks-section">
+          <h2 class="section-heading">✓ Tasks</h2>
+          <div id="project-tasks" class="tasks-container">
+            <div class="loading-small">Loading tasks...</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Multi-Vault System • <a href="index.html">Back to Overview</a></p>
+    </footer>
+  </div>
+
+  <script src="project.js"></script>
+</body>
+</html>
