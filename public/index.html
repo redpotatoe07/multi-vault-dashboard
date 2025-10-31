@@ -9,10 +9,10 @@
 <body>
   <div class="container">
     <!-- Header -->
-    <header class="header">
+    <header class="header" role="banner">
       <h1>🗂️ Multi-Vault Dashboard</h1>
-      <div class="status" id="status">
-        <span class="status-dot"></span>
+      <div class="status" id="status" role="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
         <span id="status-text">Connecting...</span>
       </div>
     </header>
@@ -20,18 +20,18 @@
 
 
     <!-- AI Chat Section -->
-    <div class="ai-chat-section" id="ai-chat-section">
+    <div class="ai-chat-section" id="ai-chat-section" role="region" aria-label="Search and AI Chat">
       <div class="ai-chat-header">
         <h2>🔍 Search & Ask</h2>
-        <div class="ollama-status" id="ollama-status">
-          <span class="status-indicator"></span>
+        <div class="ollama-status" id="ollama-status" role="status" aria-live="polite">
+          <span class="status-indicator" aria-hidden="true"></span>
           <span id="ollama-status-text">Checking Ollama...</span>
         </div>
       </div>
 
-      <div class="chat-messages" id="chat-messages">
+      <div class="chat-messages" id="chat-messages" role="log" aria-label="Chat messages" aria-live="polite">
         <div class="chat-message ai-message">
-          <div class="message-icon">🤖</div>
+          <div class="message-icon" aria-hidden="true">🤖</div>
           <div class="message-content">
             <p>Search your vaults or ask AI questions. Try:</p>
             <ul>
@@ -44,12 +44,12 @@
       </div>
 
       <div class="chat-input-container">
-        <select id="model-selector" class="model-selector">
+        <select id="model-selector" class="model-selector" aria-label="Select AI model">
           <option value="search">🔍 RAG Search</option>
           <option value="claude">🤖 Claude Pro</option>
           <option value="ollama">⚡ Ollama (Fast)</option>
         </select>
-        <select id="vault-selector" class="vault-selector">
+        <select id="vault-selector" class="vault-selector" aria-label="Select vault">
           <option value="all">All Vaults</option>
           <option value="Study">📚 Study</option>
           <option value="Creative-Incubator">🎨 Creative-Incubator</option>
@@ -65,43 +65,44 @@
           id="chat-input"
           class="chat-input"
           placeholder="Search or ask a question..."
+          aria-label="Chat input"
           disabled
         >
-        <button id="chat-send" class="chat-send" disabled>
+        <button id="chat-send" class="chat-send" aria-label="Send message" disabled>
           <span id="send-icon">Send</span>
         </button>
       </div>
     </div>
 
     <!-- Active Projects Section -->
-    <section class="active-projects-section" id="active-projects-section">
+    <section class="active-projects-section" id="active-projects-section" role="region" aria-label="Active Projects">
       <h2 class="section-heading">⚡ Active Projects</h2>
-      <div id="active-projects" class="active-projects-grid">
-        <div class="loading-small">Loading projects...</div>
+      <div id="active-projects" class="active-projects-grid" role="list">
+        <div class="loading-small" role="status">Loading projects...</div>
       </div>
     </section>
 
     <!-- Main Content: Vault Grid + Recent Activity -->
     <div class="main-content-grid">
       <!-- Vault Grid -->
-      <section class="vaults-section">
+      <section class="vaults-section" role="region" aria-label="Vaults">
         <h2 class="section-heading">🗂️ Vaults</h2>
-        <div id="vault-grid" class="vault-grid">
-          <div class="loading">Loading vaults...</div>
+        <div id="vault-grid" class="vault-grid" role="list">
+          <div class="loading" role="status">Loading vaults...</div>
         </div>
       </section>
 
       <!-- Recent Activity Sidebar -->
-      <aside class="recent-activity-sidebar">
+      <aside class="recent-activity-sidebar" role="complementary" aria-label="Recent Activity">
         <h2 class="section-heading">📝 Recent Activity</h2>
-        <div id="recent-activity" class="activity-list">
-          <div class="loading-small">Loading activity...</div>
+        <div id="recent-activity" class="activity-list" role="list">
+          <div class="loading-small" role="status">Loading activity...</div>
         </div>
       </aside>
     </div>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" role="contentinfo">
       <p>Multi-Vault System • <strong>Overview</strong> • Last updated: <span id="last-updated">--</span></p>
     </footer>
   </div>

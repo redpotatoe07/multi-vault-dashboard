@@ -161,9 +161,20 @@ function createProjectCard(project) {
 
   // Make clickable - navigate to project focus page
   card.style.cursor = 'pointer';
-  card.addEventListener('click', () => {
-    // Navigate to project page with project name
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('role', 'listitem');
+  card.setAttribute('aria-label', `${project.name} project, ${project.status}, ${project.progress}% complete`);
+
+  const navigateToProject = () => {
     window.location.href = `project.html?name=${encodeURIComponent(project.name)}`;
+  };
+
+  card.addEventListener('click', navigateToProject);
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      navigateToProject();
+    }
   });
 
   return card;
@@ -241,11 +252,23 @@ function createActivityItem(activity) {
     </div>
   `;
 
-  // Add hover effect
+  // Add hover effect and keyboard accessibility
   item.style.cursor = 'pointer';
-  item.addEventListener('click', () => {
+  item.setAttribute('tabindex', '0');
+  item.setAttribute('role', 'listitem');
+  item.setAttribute('aria-label', `${activity.name} from ${activity.vault} vault, modified ${timeAgo}`);
+
+  const handleActivity = () => {
     console.log('Activity clicked:', activity.name, 'in', activity.vault);
     // TODO: Open file preview or navigate to file
+  };
+
+  item.addEventListener('click', handleActivity);
+  item.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleActivity();
+    }
   });
 
   return item;
@@ -313,10 +336,21 @@ function createVaultCard(vault) {
     </div>
   `;
 
-  // Add click handler - navigate to project focus page filtered by this vault
-  card.addEventListener('click', () => {
-    // Navigate to project page with vault parameter
+  // Add keyboard accessibility and click handler - navigate to project focus page
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('role', 'listitem');
+  card.setAttribute('aria-label', `${vault.name} vault, ${vault.fileCount} files, last updated ${vault.lastUpdated}`);
+
+  const navigateToVault = () => {
     window.location.href = `project.html?vault=${encodeURIComponent(vault.name)}`;
+  };
+
+  card.addEventListener('click', navigateToVault);
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      navigateToVault();
+    }
   });
 
   return card;

@@ -10,15 +10,40 @@ html {
 }
 
 :root {
+  /* Color Palette */
   --bg-primary: #1a1a1a;
   --bg-secondary: #2d2d2d;
   --bg-card: #3a3a3a;
   --text-primary: #ffffff;
   --text-secondary: #b0b0b0;
   --border: #4a4a4a;
+
+  /* Accent Colors */
   --accent: #4A90E2;
+  --accent-hover: #357ABD;
+  --accent-gradient: #9B59B6;
   --success: #2ECC71;
+  --warning: #F1C40F;
+  --error: #E74C3C;
+
+  /* Effects */
   --shadow: rgba(0, 0, 0, 0.3);
+  --focus-ring: rgba(74, 144, 226, 0.4);
+  --hover-overlay: rgba(74, 144, 226, 0.08);
+
+  /* Spacing Scale (8px base) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 20px;
+  --radius-circle: 50%;
 }
 
 body {
@@ -51,7 +76,7 @@ body {
 .header h1 {
   font-size: 2.5rem;
   margin-bottom: 10px;
-  background: linear-gradient(135deg, #4A90E2, #9B59B6);
+  background: linear-gradient(135deg, var(--accent), var(--accent-gradient));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -70,7 +95,7 @@ body {
 .status-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   background: var(--success);
   animation: pulse 2s infinite;
 }
@@ -104,7 +129,7 @@ body {
 .search-input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .search-button {
@@ -120,8 +145,13 @@ body {
 }
 
 .search-button:hover {
-  background: #357ABD;
+  background: var(--accent-hover);
   transform: translateY(-2px);
+}
+
+.search-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .search-button:active {
@@ -188,7 +218,7 @@ body {
 }
 
 .status-indicator.offline {
-  background: #E74C3C;
+  background: var(--error);
 }
 
 .chat-messages {
@@ -313,6 +343,7 @@ body {
 .model-selector:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .vault-selector {
@@ -330,6 +361,7 @@ body {
 .vault-selector:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .chat-input {
@@ -346,7 +378,7 @@ body {
 .chat-input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .chat-input:disabled {
@@ -368,8 +400,13 @@ body {
 }
 
 .chat-send:hover:not(:disabled) {
-  background: #357ABD;
+  background: var(--accent-hover);
   transform: translateY(-2px);
+}
+
+.chat-send:focus:not(:disabled) {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .chat-send:active {
@@ -558,9 +595,18 @@ body {
   border-left: 4px solid var(--accent);
 }
 
+.project-card {
+  cursor: pointer;
+}
+
 .project-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px var(--shadow);
+}
+
+.project-card:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring), 0 4px 12px var(--shadow);
 }
 
 .project-header {
@@ -655,12 +701,12 @@ body {
 }
 
 .project-deadline.urgent {
-  color: var(--accent);
+  color: var(--warning);
   font-weight: 600;
 }
 
 .project-deadline.overdue {
-  color: #E74C3C;
+  color: var(--error);
   font-weight: 600;
 }
 
@@ -674,9 +720,9 @@ body {
 .error-message {
   text-align: center;
   padding: 20px;
-  color: #E74C3C;
+  color: var(--error);
   background: rgba(231, 76, 60, 0.1);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 /* Recent Activity Items */
@@ -689,8 +735,14 @@ body {
 }
 
 .activity-item:hover {
-  background: rgba(74, 144, 226, 0.1);
+  background: var(--hover-overlay);
   transform: translateX(4px);
+}
+
+.activity-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  background: var(--hover-overlay);
 }
 
 .activity-file {
@@ -751,9 +803,9 @@ body {
 .error-message-small {
   text-align: center;
   padding: 15px;
-  color: #E74C3C;
+  color: var(--error);
   background: rgba(231, 76, 60, 0.1);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
 }
 
@@ -790,7 +842,12 @@ body {
 .vault-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 12px var(--shadow);
-  background: rgba(74, 144, 226, 0.05);
+  background: var(--hover-overlay);
+}
+
+.vault-card:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring), 0 8px 12px var(--shadow);
 }
 
 .vault-header {

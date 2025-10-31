@@ -18,8 +18,14 @@
 }
 
 .breadcrumb-link:hover {
-  color: #357ABD;
+  color: var(--accent-hover);
   transform: translateX(-4px);
+}
+
+.breadcrumb-link:focus {
+  outline: none;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
 /* Project Header Section */
@@ -136,13 +142,13 @@
 
 .deadline-info.urgent {
   background: rgba(241, 196, 15, 0.15);
-  color: #F1C40F;
+  color: var(--warning);
   font-weight: 600;
 }
 
 .deadline-info.overdue {
   background: rgba(231, 76, 60, 0.15);
-  color: #E74C3C;
+  color: var(--error);
   font-weight: 600;
 }
 
@@ -195,7 +201,7 @@
 }
 
 .timeline-phase:hover {
-  background: rgba(74, 144, 226, 0.08);
+  background: var(--hover-overlay);
 }
 
 .phase-header {
@@ -257,8 +263,14 @@
 }
 
 .file-item-card:hover {
-  background: rgba(74, 144, 226, 0.08);
+  background: var(--hover-overlay);
   transform: translateX(4px);
+}
+
+.file-item-card:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  background: var(--hover-overlay);
 }
 
 .file-info {
@@ -332,7 +344,13 @@
 }
 
 .task-item:hover {
-  background: rgba(74, 144, 226, 0.08);
+  background: var(--hover-overlay);
+}
+
+.task-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  background: var(--hover-overlay);
 }
 
 .task-info {
@@ -433,7 +451,7 @@
 
 .error-message-large h2 {
   font-size: 2rem;
-  color: #E74C3C;
+  color: var(--error);
   margin: 0 0 16px 0;
 }
 
@@ -455,8 +473,13 @@
 }
 
 .back-button:hover {
-  background: #357ABD;
+  background: var(--accent-hover);
   transform: translateY(-2px);
+}
+
+.back-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 /* Mobile Responsive */
