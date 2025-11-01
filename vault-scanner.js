@@ -445,6 +445,332 @@ class VaultScanner {
 
     return results;
   }
+
+  /**
+   * Get recent activity across all vaults
+   * Returns recently modified files sorted by modification time
+   */
+  getRecentActivity(limit = 10) {
+    const allFiles = [];
+
+    // Collect recent files from all vaults
+    for (const vault of this.vaults) {
+      const vaultPath = path.join(this.vaultRoot, vault.path);
+      if (!fs.existsSync(vaultPath)) continue;
+
+      // Get recent files from this vault
+      const recentFiles = this.getRecentFiles(vaultPath, limit * 2); // Get more, then filter
+
+      recentFiles.forEach(file => {
+        allFiles.push({
+          name: file.name,
+          vault: vault.name,
+          vaultIcon: vault.icon,
+          vaultColor: vault.color,
+          path: path.relative(vaultPath, file.path),
+          modified: file.modified,
+          modifiedISO: file.modified.toISOString()
+        });
+      });
+    }
+
+    // Sort all files by modification time (newest first)
+    allFiles.sort((a, b) => b.modified - a.modified);
+
+    // Return top N files with formatted time
+    return allFiles.slice(0, limit).map(file => ({
+      name: file.name,
+      vault: file.vault,
+      vaultIcon: file.vaultIcon,
+      vaultColor: file.vaultColor,
+      path: file.path,
+      modified: file.modifiedISO,
+      timeAgo: this.formatTimeAgo(file.modified)
+    }));
+  }
+
+  /**
+   * Format a date as relative time (e.g., "2 hours ago", "3 days ago")
+   */
+  formatTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+    const diffWeek = Math.floor(diffDay / 7);
+    const diffMonth = Math.floor(diffDay / 30);
+    const diffYear = Math.floor(diffDay / 365);
+
+    if (diffSec < 60) return 'Just now';
+    if (diffMin < 60) return `${diffMin} ${diffMin === 1 ? 'minute' : 'minutes'} ago`;
+    if (diffHour < 24) return `${diffHour} ${diffHour === 1 ? 'hour' : 'hours'} ago`;
+    if (diffDay < 7) return `${diffDay} ${diffDay === 1 ? 'day' : 'days'} ago`;
+    if (diffWeek < 4) return `${diffWeek} ${diffWeek === 1 ? 'week' : 'weeks'} ago`;
+    if (diffMonth < 12) return `${diffMonth} ${diffMonth === 1 ? 'month' : 'months'} ago`;
+    return `${diffYear} ${diffYear === 1 ? 'year' : 'years'} ago`;
+  }
+
+  /**
+   * Get detailed project information including timeline, files, and tasks
+   */
+  getProjectDetails(identifier, type = 'name') {
+    const projects = this.getActiveProjects();
+
+    // Find the project
+    let project;
+    if (type === 'name') {
+      project = projects.find(p => p.name === identifier);
+    } else if (type === 'vault') {
+      project = projects.find(p => p.vault === identifier);
+    }
+
+    if (!project) return null;
+
+    // Get additional details
+    const vaultConfig = this.vaults.find(v => v.name === project.vault);
+    if (!vaultConfig) return project;
+
+    const vaultPath = path.join(this.vaultRoot, vaultConfig.path);
+
+    // Parse timeline from PROJECT-STATUS.md if it exists
+    const timeline = this.parseProjectTimeline(project.filePath);
+
+    // Get related files from the vault
+    const relatedFiles = this.getProjectFiles(vaultPath, project.name, 20);
+
+    // Calculate stats
+    const stats = {
+      totalFiles: relatedFiles.length,
+      completedTasks: timeline ? timeline.filter(p => p.progress === 100).length : 0,
+      totalPhases: timeline ? timeline.length : 0,
+      lastActivity: relatedFiles.length > 0 ? relatedFiles[0].modified : new Date().toISOString()
+    };
+
+    return {
+      ...project,
+      timeline: timeline || [],
+      relatedFiles: relatedFiles,
+      stats: stats
+    };
+  }
+
+  /**
+   * Parse timeline/phases from PROJECT-STATUS.md
+   */
+  parseProjectTimeline(filePath) {
+    if (!filePath) return null;
+
+    try {
+      const fullPath = path.join(this.vaultRoot, filePath);
+      const content = fs.readFileSync(fullPath, 'utf8');
+
+      const phases = [];
+
+      // Look for phase markers like "Phase 1", "## Phase 1", etc.
+      const phaseRegex = /(?:^|\n)#{1,3}\s*(?:Phase|Stage|Step)\s+(\d+)[:\s]*([^\n]+)/gi;
+      let match;
+
+      while ((match = phaseRegex.exec(content)) !== null) {
+        const phaseNumber = parseInt(match[1]);
+        const phaseName = match[2].trim();
+
+        // Try to extract progress percentage near this phase
+        const afterPhase = content.substring(match.index, match.index + 500);
+        const progressMatch = afterPhase.match(/(\d+)%/);
+        const progress = progressMatch ? parseInt(progressMatch[1]) : 0;
+
+        // Try to determine status
+        let status = 'pending';
+        if (progress === 100 || afterPhase.match(/complete|done|finished/i)) {
+          status = 'completed';
+        } else if (progress > 0 || afterPhase.match(/in progress|ongoing|current/i)) {
+          status = 'in-progress';
+        }
+
+        phases.push({
+          number: phaseNumber,
+          name: phaseName,
+          progress: Math.min(progress, 100),
+          status: status
+        });
+      }
+
+      // Sort by phase number
+      return phases.sort((a, b) => a.number - b.number);
+    } catch (error) {
+      console.error(`Error parsing timeline from ${filePath}:`, error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Get files related to a project
+   */
+  getProjectFiles(vaultPath, projectName, limit = 20) {
+    const files = [];
+
+    try {
+      const items = fs.readdirSync(vaultPath, { withFileTypes: true });
+
+      for (const item of items) {
+        if (files.length >= limit) break;
+
+        const fullPath = path.join(vaultPath, item.name);
+
+        if (item.isDirectory()) {
+          if (!item.name.startsWith('.') && item.name !== 'node_modules') {
+            const subFiles = this.getProjectFiles(fullPath, projectName, limit - files.length);
+            files.push(...subFiles);
+          }
+        } else if (item.isFile() && item.name.endsWith('.md')) {
+          const stats = fs.statSync(fullPath);
+          files.push({
+            name: item.name,
+            path: path.relative(vaultPath, fullPath),
+            modified: stats.mtime.toISOString(),
+            size: stats.size
+          });
+        }
+      }
+    } catch (error) {
+      console.error(`Error getting project files from ${vaultPath}:`, error.message);
+    }
+
+    // Sort by modification date (newest first)
+    return files.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+  }
+
+  /**
+   * Get active projects across all vaults
+   * Projects are identified by:
+   * 1. PROJECT-STATUS.md or PROJECT-OVERVIEW.md files
+   * 2. Vaults themselves (as fallback for active vaults)
+   */
+  getActiveProjects() {
+    const projects = [];
+
+    // Scan for PROJECT-STATUS.md files
+    for (const vault of this.vaults) {
+      const vaultPath = path.join(this.vaultRoot, vault.path);
+      if (!fs.existsSync(vaultPath)) continue;
+
+      // Look for project files in vault root and subdirectories
+      const projectFiles = this.findProjectFiles(vaultPath, vault);
+      projects.push(...projectFiles);
+    }
+
+    // If we found project files, return them
+    if (projects.length > 0) {
+      // Sort by priority: in-progress > pending > completed
+      const priorityMap = { 'in-progress': 1, 'active': 1, 'pending': 2, 'completed': 3, 'on-hold': 4 };
+      projects.sort((a, b) => {
+        const aPriority = priorityMap[a.status.toLowerCase()] || 5;
+        const bPriority = priorityMap[b.status.toLowerCase()] || 5;
+        return aPriority - bPriority;
+      });
+      return projects.slice(0, 5); // Return top 5 projects
+    }
+
+    // Fallback: treat active vaults as projects
+    const vaultProjects = this.scanAllVaults()
+      .filter(v => v.exists && v.fileCount > 0)
+      .map(v => ({
+        name: v.name,
+        vault: v.name,
+        icon: v.icon,
+        status: v.fileCount > 50 ? 'Active' : 'Pending',
+        progress: Math.min(Math.floor((v.fileCount / 500) * 100), 100), // Estimate based on file count
+        deadline: null,
+        fileCount: v.fileCount,
+        lastUpdated: v.recentFiles[0]?.modified || new Date().toISOString()
+      }));
+
+    return vaultProjects.slice(0, 5);
+  }
+
+  /**
+   * Find PROJECT-STATUS.md or PROJECT-OVERVIEW.md files in a vault
+   */
+  findProjectFiles(dirPath, vault, depth = 0, maxDepth = 2) {
+    const projects = [];
+    if (depth > maxDepth) return projects;
+
+    try {
+      const items = fs.readdirSync(dirPath, { withFileTypes: true });
+
+      for (const item of items) {
+        const fullPath = path.join(dirPath, item.name);
+
+        if (item.isDirectory()) {
+          if (!item.name.startsWith('.') && item.name !== 'node_modules') {
+            projects.push(...this.findProjectFiles(fullPath, vault, depth + 1, maxDepth));
+          }
+        } else if (item.isFile() &&
+                   (item.name === 'PROJECT-STATUS.md' ||
+                    item.name === 'PROJECT-OVERVIEW.md' ||
+                    item.name.match(/^PROJECT.*\.md$/i))) {
+          const projectInfo = this.parseProjectFile(fullPath, vault);
+          if (projectInfo) {
+            projects.push(projectInfo);
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error finding project files in ${dirPath}:`, error.message);
+    }
+
+    return projects;
+  }
+
+  /**
+   * Parse a PROJECT-STATUS.md file to extract project metadata
+   */
+  parseProjectFile(filePath, vault) {
+    try {
+      const content = fs.readFileSync(filePath, 'utf8');
+      const stats = fs.statSync(filePath);
+
+      // Extract project name from heading or file location
+      const nameMatch = content.match(/^#\s+(.+?)$/m);
+      const projectName = nameMatch ? nameMatch[1].trim() : path.basename(path.dirname(filePath));
+
+      // Extract status
+      const statusMatch = content.match(/status[:\s]+([^\n]+)/i);
+      const status = statusMatch ? statusMatch[1].trim() : 'In Progress';
+
+      // Extract deadline
+      const deadlineMatch = content.match(/deadline[:\s]+([^\n]+)/i);
+      const deadline = deadlineMatch ? deadlineMatch[1].trim() : null;
+
+      // Estimate progress from phase completion markers
+      let progress = 50; // Default
+      const phaseMatches = content.match(/phase\s+\d+.*?(\d+)%/gi);
+      if (phaseMatches && phaseMatches.length > 0) {
+        const percentages = phaseMatches.map(m => parseInt(m.match(/(\d+)%/)[1]));
+        progress = Math.floor(percentages.reduce((a, b) => a + b, 0) / percentages.length);
+      } else if (content.match(/complete|done|finished/i)) {
+        progress = 100;
+      } else if (content.match(/started|in progress|ongoing/i)) {
+        progress = 50;
+      }
+
+      return {
+        name: projectName.replace(/project/i, '').trim() || vault.name,
+        vault: vault.name,
+        icon: vault.icon,
+        status: status,
+        progress: Math.min(progress, 100),
+        deadline: deadline,
+        filePath: path.relative(this.vaultRoot, filePath),
+        lastUpdated: stats.mtime.toISOString()
+      };
+    } catch (error) {
+      console.error(`Error parsing project file ${filePath}:`, error.message);
+      return null;
+    }
+  }
 }
 
 module.exports = VaultScanner;

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Focus - Multi-Vault Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="project.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header" role="banner">
+      <h1>🗂️ Multi-Vault Dashboard</h1>
+      <div class="status" id="status" role="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="status-text">Connecting...</span>
+      </div>
+    </header>
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb" role="navigation" aria-label="Breadcrumb">
+      <a href="index.html" class="breadcrumb-link">← Back to Overview</a>
+    </nav>
+
+    <!-- Project Header -->
+    <section class="project-header-section" id="project-header-section" role="region" aria-label="Project Header">
+      <div class="loading" role="status">Loading project...</div>
+    </section>
+
+    <!-- Project Content Grid -->
+    <div class="project-content-grid">
+      <!-- Left Column: Timeline + Files -->
+      <div class="project-main-column">
+        <!-- Timeline Section -->
+        <section class="project-timeline-section" role="region" aria-label="Project Timeline">
+          <h2 class="section-heading">📅 Timeline</h2>
+          <div id="project-timeline" class="timeline-container" role="list">
+            <div class="loading-small" role="status">Loading timeline...</div>
+          </div>
+        </section>
+
+        <!-- Related Files Section -->
+        <section class="project-files-section" role="region" aria-label="Related Files">
+          <h2 class="section-heading">📄 Related Files</h2>
+          <div id="project-files" class="files-container" role="list">
+            <div class="loading-small" role="status">Loading files...</div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Stats + Tasks -->
+      <aside class="project-sidebar" role="complementary" aria-label="Project Sidebar">
+        <!-- Project Stats -->
+        <section class="project-stats-section" role="region" aria-label="Project Statistics">
+          <h2 class="section-heading">📊 Stats</h2>
+          <div id="project-stats" class="stats-container">
+            <div class="loading-small" role="status">Loading stats...</div>
+          </div>
+        </section>
+
+        <!-- Active Tasks -->
+        <section class="project-tasks-section" role="region" aria-label="Active Tasks">
+          <h2 class="section-heading">✓ Tasks</h2>
+          <div id="project-tasks" class="tasks-container" role="list">
+            <div class="loading-small" role="status">Loading tasks...</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+      <p>Multi-Vault System • <strong>Project Focus</strong> • <a href="index.html">Back to Overview</a></p>
+    </footer>
+  </div>
+
+  <script src="project.js"></script>
+</body>
+</html>

@@ -21,6 +21,8 @@ const ollamaStatus = document.getElementById('ollama-status');
 
 // Initialize
 loadVaults();
+loadActiveProjects();
+loadRecentActivity();
 checkAIStatus();
 
 // Debug mode toggle button
@@ -63,6 +65,224 @@ async function loadVaults() {
 }
 
 /**
+ * Load active projects from API
+ */
+async function loadActiveProjects() {
+  try {
+    const response = await fetch(`${API_BASE}/api/projects`);
+    const data = await response.json();
+
+    if (data.success) {
+      renderProjects(data.projects);
+    } else {
+      showProjectsError('Failed to load projects');
+    }
+  } catch (error) {
+    showProjectsError('Cannot connect to server');
+  }
+}
+
+/**
+ * Render project cards
+ */
+function renderProjects(projects) {
+  const projectsContainer = document.getElementById('active-projects');
+
+  if (!projects || projects.length === 0) {
+    projectsContainer.innerHTML = '<div class="no-projects">No active projects found</div>';
+    return;
+  }
+
+  projectsContainer.innerHTML = '';
+
+  projects.forEach(project => {
+    const card = createProjectCard(project);
+    projectsContainer.appendChild(card);
+  });
+}
+
+/**
+ * Create a project card element
+ */
+function createProjectCard(project) {
+  const card = document.createElement('div');
+  card.className = 'project-card';
+
+  // Status badge color
+  const statusColors = {
+    'active': '#2ECC71',
+    'in-progress': '#3498DB',
+    'pending': '#F39C12',
+    'completed': '#95A5A6',
+    'on-hold': '#E74C3C'
+  };
+  const statusColor = statusColors[project.status.toLowerCase()] || '#3498DB';
+
+  // Format deadline
+  let deadlineText = '';
+  if (project.deadline) {
+    try {
+      const deadline = new Date(project.deadline);
+      const now = new Date();
+      const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+      if (daysUntil > 0) {
+        deadlineText = `<span class="project-deadline">📅 ${daysUntil} days</span>`;
+      } else if (daysUntil === 0) {
+        deadlineText = `<span class="project-deadline urgent">📅 Due today!</span>`;
+      } else {
+        deadlineText = `<span class="project-deadline overdue">📅 Overdue</span>`;
+      }
+    } catch (e) {
+      deadlineText = `<span class="project-deadline">📅 ${project.deadline}</span>`;
+    }
+  }
+
+  card.innerHTML = `
+    <div class="project-header">
+      <div class="project-title">
+        <span class="project-icon">${project.icon}</span>
+        <span class="project-name">${project.name}</span>
+      </div>
+      <span class="project-status" style="background: ${statusColor}88; color: ${statusColor};">
+        ${project.status}
+      </span>
+    </div>
+    <div class="project-progress-section">
+      <div class="project-progress-bar">
+        <div class="project-progress-fill" style="width: ${project.progress}%; background: ${statusColor};"></div>
+      </div>
+      <span class="project-progress-text">${project.progress}%</span>
+    </div>
+    <div class="project-footer">
+      <span class="project-vault">🗂️ ${project.vault}</span>
+      ${deadlineText}
+    </div>
+  `;
+
+  // Make clickable - navigate to project focus page
+  card.style.cursor = 'pointer';
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('role', 'listitem');
+  card.setAttribute('aria-label', `${project.name} project, ${project.status}, ${project.progress}% complete`);
+
+  const navigateToProject = () => {
+    window.location.href = `project.html?name=${encodeURIComponent(project.name)}`;
+  };
+
+  card.addEventListener('click', navigateToProject);
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      navigateToProject();
+    }
+  });
+
+  return card;
+}
+
+/**
+ * Show error in projects section
+ */
+function showProjectsError(message) {
+  const projectsContainer = document.getElementById('active-projects');
+  projectsContainer.innerHTML = `<div class="error-message">${message}</div>`;
+}
+
+/**
+ * Load recent activity from API
+ */
+async function loadRecentActivity() {
+  try {
+    const response = await fetch(`${API_BASE}/api/recent-activity?limit=10`);
+    const data = await response.json();
+
+    if (data.success) {
+      renderRecentActivity(data.activity);
+    } else {
+      showActivityError('Failed to load activity');
+    }
+  } catch (error) {
+    showActivityError('Cannot connect to server');
+  }
+}
+
+/**
+ * Render recent activity list
+ */
+function renderRecentActivity(activities) {
+  const activityContainer = document.getElementById('recent-activity');
+
+  if (!activities || activities.length === 0) {
+    activityContainer.innerHTML = '<div class="no-activity">No recent activity</div>';
+    return;
+  }
+
+  activityContainer.innerHTML = '';
+
+  activities.forEach(activity => {
+    const item = createActivityItem(activity);
+    activityContainer.appendChild(item);
+  });
+}
+
+/**
+ * Create an activity list item
+ */
+function createActivityItem(activity) {
+  const item = document.createElement('div');
+  item.className = 'activity-item';
+
+  // Truncate filename if too long
+  const maxLength = 30;
+  const displayName = activity.name.length > maxLength
+    ? activity.name.substring(0, maxLength) + '...'
+    : activity.name;
+
+  item.innerHTML = `
+    <div class="activity-file">
+      <span class="activity-vault-icon" style="color: ${activity.vaultColor};">${activity.vaultIcon}</span>
+      <div class="activity-details">
+        <div class="activity-filename" title="${activity.name}">${displayName}</div>
+        <div class="activity-meta">
+          <span class="activity-vault-name">${activity.vault}</span>
+          <span class="activity-separator">•</span>
+          <span class="activity-time">${activity.timeAgo}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Add hover effect and keyboard accessibility
+  item.style.cursor = 'pointer';
+  item.setAttribute('tabindex', '0');
+  item.setAttribute('role', 'listitem');
+  item.setAttribute('aria-label', `${activity.name} from ${activity.vault} vault, modified ${timeAgo}`);
+
+  const handleActivity = () => {
+    console.log('Activity clicked:', activity.name, 'in', activity.vault);
+    // TODO: Open file preview or navigate to file
+  };
+
+  item.addEventListener('click', handleActivity);
+  item.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleActivity();
+    }
+  });
+
+  return item;
+}
+
+/**
+ * Show error in activity section
+ */
+function showActivityError(message) {
+  const activityContainer = document.getElementById('recent-activity');
+  activityContainer.innerHTML = `<div class="error-message-small">${message}</div>`;
+}
+
+/**
  * Render vault cards
  */
 function renderVaults(vaults) {
@@ -93,51 +313,45 @@ function createVaultCard(vault) {
     return card;
   }
 
+  // Get last updated time from most recent file
+  const lastUpdated = vault.recentFiles.length > 0
+    ? formatTimeAgo(vault.recentFiles[0].modified)
+    : 'No recent activity';
+
   card.innerHTML = `
     <div class="vault-header">
       <span class="vault-icon">${vault.icon}</span>
       <h2 class="vault-title">${vault.name}</h2>
     </div>
 
-    <div class="vault-stats">
-      <div class="stat-box">
-        <span class="stat-value">${vault.fileCount}</span>
-        <span class="stat-label">Files</span>
+    <div class="vault-info">
+      <div class="vault-file-count">
+        <span class="file-count-number">${vault.fileCount}</span>
+        <span class="file-count-label">${vault.fileCount === 1 ? 'file' : 'files'}</span>
       </div>
-      <div class="stat-box">
-        <span class="stat-value">${vault.topFolders.length}</span>
-        <span class="stat-label">Folders</span>
+      <div class="vault-last-updated">
+        <span class="last-updated-icon">🕐</span>
+        <span class="last-updated-text">${lastUpdated}</span>
       </div>
     </div>
-
-    ${vault.topFolders.length > 0 ? `
-      <div class="vault-section">
-        <h3 class="section-title">Top Folders</h3>
-        <ul class="folder-list">
-          ${vault.topFolders.map(folder => `
-            <li class="folder-item">
-              <span class="file-name">📁 ${folder.name}</span>
-              <span class="folder-count">${folder.fileCount}</span>
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-    ` : ''}
-
-    ${vault.recentFiles.length > 0 ? `
-      <div class="vault-section">
-        <h3 class="section-title">Recent Files</h3>
-        <ul class="file-list">
-          ${vault.recentFiles.slice(0, 5).map(file => `
-            <li class="file-item">
-              <span class="file-name" title="${file.relativePath}">📄 ${file.name}</span>
-              <span class="file-time">${formatTimeAgo(file.modified)}</span>
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-    ` : ''}
   `;
+
+  // Add keyboard accessibility and click handler - navigate to project focus page
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('role', 'listitem');
+  card.setAttribute('aria-label', `${vault.name} vault, ${vault.fileCount} files, last updated ${vault.lastUpdated}`);
+
+  const navigateToVault = () => {
+    window.location.href = `project.html?vault=${encodeURIComponent(vault.name)}`;
+  };
+
+  card.addEventListener('click', navigateToVault);
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      navigateToVault();
+    }
+  });
 
   return card;
 }
